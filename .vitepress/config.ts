@@ -6,6 +6,14 @@ export default defineConfig({
   lang: 'zh-CN',
   base: '/',
   lastUpdated: true,
+  head: [
+    ['meta', { name: 'keywords', content: 'AI Agent,LLM 可观测性,OpenTelemetry,Langfuse,Phoenix,AI 安全,红队测试,大模型评估,AI 测试' }],
+    ['meta', { name: 'author', content: 'veriyoung' }],
+    ['meta', { property: 'og:title', content: 'AI Agent 可观测与安全' }],
+    ['meta', { property: 'og:description', content: 'AI Agent 可观测性、安全防护、测试量化 — 技术文档与开源工具汇总' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:url', content: 'https://veriyoung.github.io' }],
+  ],
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
