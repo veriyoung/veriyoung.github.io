@@ -13,7 +13,7 @@ export default defineConfig({
     ['meta', { property: 'og:description', content: 'AI Agent 可观测性、安全防护、测试量化 — 技术文档与开源工具汇总' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:url', content: 'https://veriyoung.github.io' }],
-    ['script', {}, '(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "xqnw3s2i88");'],
+    ['script', { async: 'true', src: 'https://www.clarity.ms/tag/xqnw3s2i88' }],
   ],
   themeConfig: {
     nav: [
