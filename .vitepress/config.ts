@@ -34,6 +34,7 @@ export default defineConfig({
         {
           text: 'AI 安全测试',
           items: [
+            { text: 'AI Red Team 工具介绍', link: '/redteam/ai-redteam' },
             { text: 'RedTeam 红队测试报告', link: '/redteam/redteam-report' },
             { text: 'RedTeam 越狱测试报告', link: '/redteam/redteam-pn-jailbreak' },
           ]
