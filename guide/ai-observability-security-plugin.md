@@ -4,10 +4,23 @@ title: AI 可观测性与安全一体化插件设计方案
 
 # AI 可观测性与安全一体化插件设计方案
 
-# 技术设计文档v1.0
-# AI 可观测性与安全护栏可拔插一体化插件设计方案
-2026-07-19技术设计受众：架构师 / 安全工程师 / 平台工程师
-## 目录- 背景与动机- 整体架构：双管道设计- 安全检测模型- Guard 管道：六阶段安全流水线- 可观测性管道：完整 Span 树- 双层融合：安全裁决写入 Span- 插件化接入方案- 策略配置引擎- 实现路线图## 1. 背景与动机前两份文档分别设计了 SDK 层可观测性插件和网关层可观测性方案。但实际生产环境中，只观测不设防等于只装了监控摄像头却没装门锁——你能看到攻击发生，但阻止不了它。
+> **技术设计文档v1.0** | 2026-07-19 | 受众：架构师 / 安全工程师 / 平台工程师
+
+## 目录
+
+- 背景与动机
+- 整体架构：双管道设计
+- 安全检测模型
+- Guard 管道：六阶段安全流水线
+- 可观测性管道：完整 Span 树
+- 双层融合：安全裁决写入 Span
+- 插件化接入方案
+- 策略配置引擎
+- 实现路线图
+
+## 1. 背景与动机
+
+前两份文档分别设计了 SDK 层可观测性插件和网关层可观测性方案。但实际生产环境中，只观测不设防等于只装了监控摄像头却没装门锁——你能看到攻击发生，但阻止不了它。
 安全测试和安全审计是 AI 系统上线前的"体检"，但生产环境中的攻击不会只发生在测试期间。一个真正可用的插件需要在观测每一次 AI 调用的同时，判断操作是否安全，并在必要时阻断。这需要把可观测性（Trace / Span / Metrics）和安全护栏（Guard / Policy / Block）两套逻辑融合到一个插件中。
 观测 + 设防
 双重能力
@@ -16,7 +29,9 @@ OWASP Top 10
 安全裁决入 Span
 追踪闭环
 核心设计目标：一个插件，同时完成两件事——① 追踪每一次 AI 调用的完整链路（谁调了什么模型、用了什么工具、消耗了多少 token）；② 在每个关键节点判断操作是否安全（输入是否含注入、工具调用是否越权、输出是否泄露敏感信息），将安全裁决作为 Span 属性写入 Trace，形成可审计的安全记录。
-## 2. 整体架构：双管道设计插件核心采用双管道并行架构：观测管道负责 Trace/Span 生成和导出，安全管道负责输入/输出/工具调用的风险检测和裁决。两条管道在同一拦截点触发，裁决结果写入 Span 属性。
+## 2. 整体架构：双管道设计
+
+插件核心采用双管道并行架构：观测管道负责 Trace/Span 生成和导出，安全管道负责输入/输出/工具调用的风险检测和裁决。两条管道在同一拦截点触发，裁决结果写入 Span 属性。
 ```
 graph TB
  subgraph "应用代码"
@@ -104,7 +119,11 @@ security.blocked_reason"]
  style F1 fill:#1a1d27,stroke:#22c55e
 ```图 1：双管道架构——观测管道与安全管道在同一拦截点并行触发，裁决结果融合到 Span 中
 关键设计决策：当安全策略裁决为 Block 时，请求不会到达 LLM。但 Span 仍然会被创建和导出——只是gen_ai.operation.name标记为"blocked"，security.verdict设为"block"，security.blocked_reason记录具体原因。这意味着即使被拦截的请求也有完整的审计记录。
-## 3. 安全检测模型### 3.1 覆盖标准：OWASP LLM + Agentic AI插件的安全检测覆盖 OWASP LLM Top 10（2025）和 OWASP Agentic AI Top 10（2026）两大标准。[1][2]
+## 3. 安全检测模型
+
+### 3.1 覆盖标准：OWASP LLM + Agentic AI插件的安全检测覆盖 OWASP LLM Top 10（2025）
+
+和 OWASP Agentic AI Top 10（2026）两大标准。[1][2]
 | **编号** | **风险** | **检测位置** | **检测方式** | **插件覆盖** |
 | LLM01 | Prompt Injection | Input Guard | 规则匹配 + 分类模型 | 覆盖 |
 | LLM02 | Sensitive Information Disclosure | Output Guard | 正则 + PII 检测 | 覆盖 |
@@ -129,7 +148,9 @@ ASI05
 ASI06
 过度自主
 Agent 在没有适当人类监督的情况下执行高风险操作（如删除资源、发起转账）。
-## 4. Guard 管道：六阶段安全流水线安全管道借鉴了 Quisium 的六阶段流水线设计，在每个阶段设置检测点和短路机制。[4]
+## 4. Guard 管道：六阶段安全流水线
+
+安全管道借鉴了 Quisium 的六阶段流水线设计，在每个阶段设置检测点和短路机制。[4]
 ```
 flowchart LR
  S1["Stage 1
@@ -225,7 +246,9 @@ reasons.append(f"[危险指令] {reason}")
 max_score =max(max_score, score)# 3. 系统提示词泄露检测ifsystem_promptand_similarity(text, system_prompt) >0.60:
 reasons.append("[泄露] 输出内容与系统提示词高度相似")
 max_score =max(max_score,0.85)returnScanResult(allowed=max_score<0.75, score=max_score, reasons=reasons)
-## 5. 可观测性管道：完整 Span 树观测管道的设计继承自前两份文档的核心方案，但增强了对Agent 内部完整推理链路的追踪——不仅覆盖 LLM 调用，还覆盖工具调用、多步推理、MCP 协议等 Agent 特有的环节。
+## 5. 可观测性管道：完整 Span 树
+
+观测管道的设计继承自前两份文档的核心方案，但增强了对Agent 内部完整推理链路的追踪——不仅覆盖 LLM 调用，还覆盖工具调用、多步推理、MCP 协议等 Agent 特有的环节。
 ```
 sequenceDiagram
  participant App as 业务应用
@@ -272,7 +295,9 @@ sequenceDiagram
 | security.input_scan | chat Span | security.verdict,security.risk_score,security.scan_duration_ms,security.matched_patterns |
 | security.output_scan | chat Span | security.verdict,security.risk_score,security.leaked_data_type |
 | security.tool_scan | execute_tool Span | security.verdict,security.risk_score,security.tool_name,security.blocked_args |
-## 6. 双层融合：安全裁决写入 Span这是插件最核心的创新点：将安全裁决作为 Span 属性写入 Trace，使得安全事件与调用链路形成完整的关联关系。
+## 6. 双层融合：安全裁决写入 Span
+
+这是插件最核心的创新点：将安全裁决作为 Span 属性写入 Trace，使得安全事件与调用链路形成完整的关联关系。
 ### 6.1 融合数据模型# 安全裁决写入 Span 的标准属性@dataclassclassGuardDecision:"""安全裁决——聚合所有 Guard 的扫描结果"""allowed:bool# 是否放行score:float# 最高风险分 0.0-1.0reasons:list[str]# 风险原因列表scan_results:list[ScanResult]# 各 Guard 的详细结果stage:str# "input" | "output" | "tool"defattach_decision_to_span(span: trace.Span, decision: GuardDecision):"""将 GuardDecision 写入 Span 属性"""span.set_attribute("security.verdict","block"if notdecision.allowedelse"allow")span.set_attribute("security.risk_score", decision.score)
 span.set_attribute("security.stage", decision.stage)if notdecision.allowed:
 span.set_attribute("security.blocked_reason","; ".join(decision.reasons))
@@ -288,7 +313,10 @@ span.set_status(trace.StatusCode.ERROR,"安全策略拦截")
 | security.blocked_reason | 安全 | "[注入] 指令覆盖; [PII] API Key" |
 | security.matched_patterns | 安全 | ["ignore previous instructions", "sk-***"] |
 关键设计决策——Block 也生成 Span：当安全策略裁决为 Block 时，请求不会到达 LLM，但 Span 仍然会被创建。gen_ai.operation.name设为"blocked"，gen_ai.usage.*全部为 0。这样后端可以按security.verdict = "block"过滤出所有被拦截的请求，生成安全审计报告和告警。
-## 7. 插件化接入方案### 7.1 零代码模式与前两份文档一致，插件通过运行时注入实现零代码接入。安全检测能力作为独立模块，通过配置开关控制：
+## 7. 插件化接入方案
+
+### 7.1 零代码模式与前两份文档一致，插件通过运行时注入实现零代码接入。安全检测能力作为独立模块，通过配置开关控制：
+
 # 环境变量控制AI_OBS_ENABLED=true# 总开关AI_OBS_SECURITY_ENABLED=true# 安全检测开关AI_OBS_SECURITY_MODE=strict# strict | balanced | logging_onlyAI_OBS_SECURITY_BLOCK_THRESHOLD=0.75# 启动命令（零代码）pythonapp.py# sitecustomize.py 自动加载插件# 或一行代码importai_obs_plugin; ai_obs_plugin.init(security_mode="strict",
 block_threshold=0.75,
 allowed_tools=["search_weather","read_file","send_email"],
@@ -324,7 +352,9 @@ security.verdict=warn"]
  style ALLOW fill:#1a1d27,stroke:#22c55e
  style LOG_WARN fill:#1a1d27,stroke:#f59e0b
 ```图 4：策略生效流程——从请求到达到最终裁决的完整决策路径
-## 9. 实现路线图- 阶段一：核心 Guard 引擎4 周
+## 9. 实现路线图
+
+- 阶段一：核心 Guard 引擎4 周
 实现 Input Guard（注入检测 + 越狱检测 + PII 扫描）、Output Guard（凭证泄露 + 危险指令 + 系统提示词泄露）、Tool Guard（白名单 + 危险参数检测）。策略引擎（Policy + 三种预设模式）。GuardDecision 数据模型。- 阶段二：观测管道融合3 周
 将 Guard 管道集成到现有拦截器引擎中。实现裁决写入 Span（security.* 属性）。安全 Span 的父子关系建模。Block 场景下的 Span 生命周期管理。- 阶段三：插件化封装3 周
 Python 插件包封装（sitecustomize + import hook）。装饰器 API（@observe + @security）。中间件 API（FastAPI / Flask）。零代码接入验证。配置热更新支持。- 阶段四：高级检测能力4 周
