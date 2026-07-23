@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>AI 可拔插可观测性插件设计方案 | AI Agent 可观测与安全</title>
+    <meta name="description" content="AI Agent 可观测性、安全防护、测试量化 — 技术文档与开源工具汇总">
+    <meta name="generator" content="VitePress v1.6.4">
+    <link rel="preload stylesheet" href="/assets/style.qp7qGaqN.css" as="style">
+    <link rel="preload stylesheet" href="/vp-icons.css" as="style">
+    
+    <script type="module" src="/assets/app.Dn5nwTjy.js"></script>
+    <link rel="preload" href="/assets/inter-roman-latin.Di8DUHzh.woff2" as="font" type="font/woff2" crossorigin="">
+    <link rel="modulepreload" href="/assets/chunks/theme.C33hLUGb.js">
+    <link rel="modulepreload" href="/assets/chunks/framework.CHeM0PsO.js">
+    <link rel="modulepreload" href="/assets/guide_ai-pluggable-observability-plugin.md.L0yWfmEC.lean.js">
+    <meta name="keywords" content="AI Agent,LLM 可观测性,OpenTelemetry,Langfuse,Phoenix,AI 安全,红队测试,大模型评估,AI 测试">
+    <meta name="author" content="veriyoung">
+    <meta property="og:title" content="AI Agent 可观测与安全">
+    <meta property="og:description" content="AI Agent 可观测性、安全防护、测试量化 — 技术文档与开源工具汇总">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://veriyoung.github.io">
+    <link rel="icon" href="/favicon.ico">
+    <script src="/clarity-init.js"></script>
+    <script id="check-dark-mode">(()=>{const e=localStorage.getItem("vitepress-theme-appearance")||"auto",a=window.matchMedia("(prefers-color-scheme: dark)").matches;(!e||e==="auto"?a:e==="dark")&&document.documentElement.classList.add("dark")})();</script>
+    <script id="check-mac-os">document.documentElement.classList.toggle("mac",/Mac|iPhone|iPod|iPad/i.test(navigator.platform));</script>
+  </head>
+  <body>
+    <div id="app"><div class="Layout" data-v-d8b57b2d><!--[--><!--]--><!--[--><span tabindex="-1" data-v-fcbfc0e0></span><a href="#VPContent" class="VPSkipLink visually-hidden" data-v-fcbfc0e0>Skip to content</a><!--]--><!----><header class="VPNav" data-v-d8b57b2d data-v-7ad780c2><div class="VPNavBar" data-v-7ad780c2 data-v-9fd4d1dd><div class="wrapper" data-v-9fd4d1dd><div class="container" data-v-9fd4d1dd><div class="title" data-v-9fd4d1dd><div class="VPNavBarTitle has-sidebar" data-v-9fd4d1dd data-v-9f43907a><a class="title" href="/" data-v-9f43907a><!--[--><!--]--><!----><span data-v-9f43907a>AI Agent 可观测与安全</span><!--[--><!--]--></a></div></div><div class="content" data-v-9fd4d1dd><div class="content-body" data-v-9fd4d1dd><!--[--><!--]--><div class="VPNavBarSearch search" data-v-9fd4d1dd><!--[--><!----><div id="local-search"><button type="button" class="DocSearch DocSearch-Button" aria-label="Search"><span class="DocSearch-Button-Container"><span class="vp-icon DocSearch-Search-Icon"></span><span class="DocSearch-Button-Placeholder">Search</span></span><span class="DocSearch-Button-Keys"><kbd class="DocSearch-Button-Key"></kbd><kbd class="DocSearch-Button-Key">K</kbd></span></button></div><!--]--></div><nav aria-labelledby="main-nav-aria-label" class="VPNavBarMenu menu" data-v-9fd4d1dd data-v-afb2845e><span id="main-nav-aria-label" class="visually-hidden" data-v-afb2845e> Main Navigation </span><!--[--><!--[--><a class="VPLink link VPNavBarMenuLink" href="/" tabindex="0" data-v-afb2845e data-v-815115f5><!--[--><span data-v-815115f5>首页</span><!--]--></a><!--]--><!--[--><a class="VPLink link VPNavBarMenuLink" href="/guide/ai-call-chain-observability.html" tabindex="0" data-v-afb2845e data-v-815115f5><!--[--><span data-v-815115f5>设计文档</span><!--]--></a><!--]--><!--[--><a class="VPLink link VPNavBarMenuLink" href="/research/llm-observability-oss-2026.html" tabindex="0" data-v-afb2845e data-v-815115f5><!--[--><span data-v-815115f5>研究报告</span><!--]--></a><!--]--><!--]--></nav><!----><div class="VPNavBarAppearance appearance" data-v-9fd4d1dd data-v-3f90c1a5><button class="VPSwitch VPSwitchAppearance" type="button" role="switch" title aria-checked="false" data-v-3f90c1a5 data-v-be9742d9 data-v-b4ccac88><span class="check" data-v-b4ccac88><span class="icon" data-v-b4ccac88><!--[--><span class="vpi-sun sun" data-v-be9742d9></span><span class="vpi-moon moon" data-v-be9742d9></span><!--]--></span></span></button></div><div class="VPSocialLinks VPNavBarSocialLinks social-links" data-v-9fd4d1dd data-v-ef6192dc data-v-e71e869c><!--[--><a class="VPSocialLink no-icon" href="https://github.com/veriyoung" aria-label="github" target="_blank" rel="noopener" data-v-e71e869c data-v-60a9a2d3><span class="vpi-social-github"></span></a><!--]--></div><div class="VPFlyout VPNavBarExtra extra" data-v-9fd4d1dd data-v-f953d92f data-v-bfe7971f><button type="button" class="button" aria-haspopup="true" aria-expanded="false" aria-label="extra navigation" data-v-bfe7971f><span class="vpi-more-horizontal icon" data-v-bfe7971f></span></button><div class="menu" data-v-bfe7971f><div class="VPMenu" data-v-bfe7971f data-v-20ed86d6><!----><!--[--><!--[--><!----><div class="group" data-v-f953d92f><div class="item appearance" data-v-f953d92f><p class="label" data-v-f953d92f>Appearance</p><div class="appearance-action" data-v-f953d92f><button class="VPSwitch VPSwitchAppearance" type="button" role="switch" title aria-checked="false" data-v-f953d92f data-v-be9742d9 data-v-b4ccac88><span class="check" data-v-b4ccac88><span class="icon" data-v-b4ccac88><!--[--><span class="vpi-sun sun" data-v-be9742d9></span><span class="vpi-moon moon" data-v-be9742d9></span><!--]--></span></span></button></div></div></div><div class="group" data-v-f953d92f><div class="item social-links" data-v-f953d92f><div class="VPSocialLinks social-links-list" data-v-f953d92f data-v-e71e869c><!--[--><a class="VPSocialLink no-icon" href="https://github.com/veriyoung" aria-label="github" target="_blank" rel="noopener" data-v-e71e869c data-v-60a9a2d3><span class="vpi-social-github"></span></a><!--]--></div></div></div><!--]--><!--]--></div></div></div><!--[--><!--]--><button type="button" class="VPNavBarHamburger hamburger" aria-label="mobile navigation" aria-expanded="false" aria-controls="VPNavScreen" data-v-9fd4d1dd data-v-6bee1efd><span class="container" data-v-6bee1efd><span class="top" data-v-6bee1efd></span><span class="middle" data-v-6bee1efd></span><span class="bottom" data-v-6bee1efd></span></span></button></div></div></div></div><div class="divider" data-v-9fd4d1dd><div class="divider-line" data-v-9fd4d1dd></div></div></div><!----></header><div class="VPLocalNav has-sidebar empty" data-v-d8b57b2d data-v-2488c25a><div class="container" data-v-2488c25a><button class="menu" aria-expanded="false" aria-controls="VPSidebarNav" data-v-2488c25a><span class="vpi-align-left menu-icon" data-v-2488c25a></span><span class="menu-text" data-v-2488c25a>Menu</span></button><div class="VPLocalNavOutlineDropdown" style="--vp-vh:0px;" data-v-2488c25a data-v-6b867909><button data-v-6b867909>Return to top</button><!----></div></div></div><aside class="VPSidebar" data-v-d8b57b2d data-v-42c4c606><div class="curtain" data-v-42c4c606></div><nav class="nav" id="VPSidebarNav" aria-labelledby="sidebar-aria-label" tabindex="-1" data-v-42c4c606><span class="visually-hidden" id="sidebar-aria-label" data-v-42c4c606> Sidebar Navigation </span><!--[--><!--]--><!--[--><div class="no-transition group" data-v-51288d80><section class="VPSidebarItem level-0 has-active" data-v-51288d80 data-v-0009425e><div class="item" role="button" tabindex="0" data-v-0009425e><div class="indicator" data-v-0009425e></div><h2 class="text" data-v-0009425e>AI Agent 可观测性设计</h2><!----></div><div class="items" data-v-0009425e><!--[--><div class="VPSidebarItem level-1 is-link" data-v-0009425e><div class="item" data-v-0009425e><div class="indicator" data-v-0009425e></div><a class="VPLink link link" href="/guide/ai-call-chain-observability.html" data-v-0009425e><!--[--><p class="text" data-v-0009425e>AI 调用链路可观测性设计文档</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-0009425e><div class="item" data-v-0009425e><div class="indicator" data-v-0009425e></div><a class="VPLink link link" href="/guide/ai-pluggable-observability-plugin.html" data-v-0009425e><!--[--><p class="text" data-v-0009425e>AI 可拔插可观测性插件设计方案</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-0009425e><div class="item" data-v-0009425e><div class="indicator" data-v-0009425e></div><a class="VPLink link link" href="/guide/ai-gateway-observability-plugin.html" data-v-0009425e><!--[--><p class="text" data-v-0009425e>AI 网关层可观测性接入技术方案</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-0009425e><div class="item" data-v-0009425e><div class="indicator" data-v-0009425e></div><a class="VPLink link link" href="/guide/ai-observability-security-plugin.html" data-v-0009425e><!--[--><p class="text" data-v-0009425e>AI 可观测性与安全一体化插件设计方案</p><!--]--></a><!----></div><!----></div><!--]--></div></section></div><div class="no-transition group" data-v-51288d80><section class="VPSidebarItem level-0" data-v-51288d80 data-v-0009425e><div class="item" role="button" tabindex="0" data-v-0009425e><div class="indicator" data-v-0009425e></div><h2 class="text" data-v-0009425e>补充分析</h2><!----></div><div class="items" data-v-0009425e><!--[--><div class="VPSidebarItem level-1 is-link" data-v-0009425e><div class="item" data-v-0009425e><div class="indicator" data-v-0009425e></div><a class="VPLink link link" href="/guide/sentinelone-gap-analysis.html" data-v-0009425e><!--[--><p class="text" data-v-0009425e>SentinelOne 工具补充分析</p><!--]--></a><!----></div><!----></div><!--]--></div></section></div><!--]--><!--[--><!--]--></nav></aside><div class="VPContent has-sidebar" id="VPContent" data-v-d8b57b2d data-v-9a6c75ad><div class="VPDoc has-sidebar has-aside" data-v-9a6c75ad data-v-e6f2a212><!--[--><!--]--><div class="container" data-v-e6f2a212><div class="aside" data-v-e6f2a212><div class="aside-curtain" data-v-e6f2a212></div><div class="aside-container" data-v-e6f2a212><div class="aside-content" data-v-e6f2a212><div class="VPDocAside" data-v-e6f2a212 data-v-cb998dce><!--[--><!--]--><!--[--><!--]--><nav aria-labelledby="doc-outline-aria-label" class="VPDocAsideOutline" data-v-cb998dce data-v-f610f197><div class="content" data-v-f610f197><div class="outline-marker" data-v-f610f197></div><div aria-level="2" class="outline-title" id="doc-outline-aria-label" role="heading" data-v-f610f197>On this page</div><ul class="VPDocOutlineItem root" data-v-f610f197 data-v-53c99d69><!--[--><!--]--></ul></div></nav><!--[--><!--]--><div class="spacer" data-v-cb998dce></div><!--[--><!--]--><!----><!--[--><!--]--><!--[--><!--]--></div></div></div></div><div class="content" data-v-e6f2a212><div class="content-container" data-v-e6f2a212><!--[--><!--]--><main class="main" data-v-e6f2a212><div style="position:relative;" class="vp-doc _guide_ai-pluggable-observability-plugin" data-v-e6f2a212><div><h1 id="ai-可拔插可观测性插件设计方案" tabindex="-1">AI 可拔插可观测性插件设计方案 <a class="header-anchor" href="#ai-可拔插可观测性插件设计方案" aria-label="Permalink to &quot;AI 可拔插可观测性插件设计方案&quot;">​</a></h1><blockquote><p><strong>技术设计文档v1.0</strong> | 2026-07-19 | 受众：架构师 / 平台工程师 / 后端工程师</p></blockquote><h2 id="目录" tabindex="-1">目录 <a class="header-anchor" href="#目录" aria-label="Permalink to &quot;目录&quot;">​</a></h2><ul><li>背景与目标</li><li>设计原则</li><li>插件架构总览</li><li>核心模块设计</li><li>多语言接入方案</li><li>应用层集成方式</li><li>插件接口规范</li><li>配置与动态开关</li><li>性能与安全</li><li>实现路线图</li></ul><h2 id="_1-背景与目标" tabindex="-1">1. 背景与目标 <a class="header-anchor" href="#_1-背景与目标" aria-label="Permalink to &quot;1. 背景与目标&quot;">​</a></h2><p>上一份设计文档建立了 AI 调用链路可观测性的完整数据模型和架构方案。但实际落地时面临一个核心矛盾：每接入一个 AI 应用，就需要在代码中嵌入 OTel SDK、配置 Exporter、管理 Span 生命周期——侵入性高、迁移成本大、团队抵触强。 可拔插插件方案的目标是让可观测性能力像&quot;插头&quot;一样： 零代码 接入成本 即插即用 部署模式 热拔卸 移除方式 具体而言，插件需要满足四个核心能力： 零侵入接入。通过启动参数、环境变量或配置文件声明插件，无需修改业务代码。移除插件后应用行为完全不变。 多框架自适应。自动识别 OpenAI SDK、LangChain、LlamaIndex、Anthropic SDK、AWS Bedrock 等主流 AI 库，注入对应的拦截逻辑。 动态可控。运行时通过配置中心调整采样率、内容捕获开关、导出目标，无需重启应用。 性能无损。所有数据采集在独立线程/协程中异步执行，Span 构建和导出不阻塞主业务链路。插件自身开销控制在 &lt; 1% CPU 和 &lt; 5MB 内存。</p><h2 id="_2-设计原则" tabindex="-1">2. 设计原则# <a class="header-anchor" href="#_2-设计原则" aria-label="Permalink to &quot;2. 设计原则#&quot;">​</a></h2><h3 id="非侵入优先优先使用运行时字节码增强、猴子补丁、ebpf-等零代码技术。仅在无法自动拦截时提供声明式注解-装饰器作为降级方案。" tabindex="-1">非侵入优先优先使用运行时字节码增强、猴子补丁、eBPF 等零代码技术。仅在无法自动拦截时提供声明式注解/装饰器作为降级方案。 <a class="header-anchor" href="#非侵入优先优先使用运行时字节码增强、猴子补丁、ebpf-等零代码技术。仅在无法自动拦截时提供声明式注解-装饰器作为降级方案。" aria-label="Permalink to &quot;非侵入优先优先使用运行时字节码增强、猴子补丁、eBPF 等零代码技术。仅在无法自动拦截时提供声明式注解/装饰器作为降级方案。&quot;">​</a></h3><h4 id="标准协议输出所有-span-和-metrics-遵循-otel-genai-语义约定-通过-otlp-协议导出。不绑定任何后端平台-可同时输出到多个目标。" tabindex="-1">标准协议输出所有 Span 和 Metrics 遵循 OTel GenAI 语义约定，通过 OTLP 协议导出。不绑定任何后端平台，可同时输出到多个目标。 <a class="header-anchor" href="#标准协议输出所有-span-和-metrics-遵循-otel-genai-语义约定-通过-otlp-协议导出。不绑定任何后端平台-可同时输出到多个目标。" aria-label="Permalink to &quot;标准协议输出所有 Span 和 Metrics 遵循 OTel GenAI 语义约定，通过 OTLP 协议导出。不绑定任何后端平台，可同时输出到多个目标。&quot;">​</a></h4><h4 id="渐进式增强默认只采集基础-span-和-metrics-延迟、token-用量-内容捕获和质量评估按需开启。插件能力分层-用户按需加载。" tabindex="-1">渐进式增强默认只采集基础 Span 和 Metrics（延迟、token 用量），内容捕获和质量评估按需开启。插件能力分层，用户按需加载。 <a class="header-anchor" href="#渐进式增强默认只采集基础-span-和-metrics-延迟、token-用量-内容捕获和质量评估按需开启。插件能力分层-用户按需加载。" aria-label="Permalink to &quot;渐进式增强默认只采集基础 Span 和 Metrics（延迟、token 用量），内容捕获和质量评估按需开启。插件能力分层，用户按需加载。&quot;">​</a></h4><h4 id="故障隔离插件任何模块的异常-拦截失败、导出超时、配置错误-不得影响业务主流程。拦截层和导出层均设有独立的异常熔断和超时控制。" tabindex="-1">故障隔离插件任何模块的异常（拦截失败、导出超时、配置错误）不得影响业务主流程。拦截层和导出层均设有独立的异常熔断和超时控制。 <a class="header-anchor" href="#故障隔离插件任何模块的异常-拦截失败、导出超时、配置错误-不得影响业务主流程。拦截层和导出层均设有独立的异常熔断和超时控制。" aria-label="Permalink to &quot;故障隔离插件任何模块的异常（拦截失败、导出超时、配置错误）不得影响业务主流程。拦截层和导出层均设有独立的异常熔断和超时控制。&quot;">​</a></h4><h2 id="_3-插件架构总览" tabindex="-1">3. 插件架构总览 <a class="header-anchor" href="#_3-插件架构总览" aria-label="Permalink to &quot;3. 插件架构总览&quot;">​</a></h2><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>graph TB</span></span>
+<span class="line"><span> subgraph &quot;应用进程&quot;</span></span>
+<span class="line"><span> A1[&quot;AI 应用代码</span></span>
+<span class="line"><span>(OpenAI / LangChain / ...)&quot;]</span></span>
+<span class="line"><span> A2[&quot;插件加载入口</span></span>
+<span class="line"><span>(sitecustomize / -javaagent / --require)&quot;]</span></span>
+<span class="line"><span> end</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span> subgraph &quot;插件核心 (Plugin Core)&quot;</span></span>
+<span class="line"><span> B1[&quot;插件生命周期管理器</span></span>
+<span class="line"><span>PluginManager&quot;]</span></span>
+<span class="line"><span> B2[&quot;拦截引擎</span></span>
+<span class="line"><span>InterceptorEngine&quot;]</span></span>
+<span class="line"><span> B3[&quot;Span 构建器</span></span>
+<span class="line"><span>SpanBuilder&quot;]</span></span>
+<span class="line"><span> B4[&quot;配置管理器</span></span>
+<span class="line"><span>ConfigManager&quot;]</span></span>
+<span class="line"><span> B5[&quot;导出器链</span></span>
+<span class="line"><span>ExporterChain&quot;]</span></span>
+<span class="line"><span> end</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span> subgraph &quot;拦截器注册表 (Interceptor Registry)&quot;</span></span>
+<span class="line"><span> C1[&quot;OpenAI Interceptor&quot;]</span></span>
+<span class="line"><span> C2[&quot;Anthropic Interceptor&quot;]</span></span>
+<span class="line"><span> C3[&quot;LangChain Interceptor&quot;]</span></span>
+<span class="line"><span> C4[&quot;LlamaIndex Interceptor&quot;]</span></span>
+<span class="line"><span> C5[&quot;MCP Interceptor&quot;]</span></span>
+<span class="line"><span> C6[&quot;自定义 Interceptor&quot;]</span></span>
+<span class="line"><span> end</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span> subgraph &quot;导出后端&quot;</span></span>
+<span class="line"><span> D1[&quot;OTLP Collector&quot;]</span></span>
+<span class="line"><span> D2[&quot;ClickHouse&quot;]</span></span>
+<span class="line"><span> D3[&quot;Prometheus&quot;]</span></span>
+<span class="line"><span> D4[&quot;S3 / MinIO&quot;]</span></span>
+<span class="line"><span> end</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span> A1 --&gt;|&quot;运行时拦截&quot;| A2</span></span>
+<span class="line"><span> A2 --&gt; B1</span></span>
+<span class="line"><span> B1 --&gt; B2</span></span>
+<span class="line"><span> B1 --&gt; B4</span></span>
+<span class="line"><span> B2 --&gt; C1</span></span>
+<span class="line"><span> B2 --&gt; C2</span></span>
+<span class="line"><span> B2 --&gt; C3</span></span>
+<span class="line"><span> B2 --&gt; C4</span></span>
+<span class="line"><span> B2 --&gt; C5</span></span>
+<span class="line"><span> B2 --&gt; C6</span></span>
+<span class="line"><span> B2 --&gt; B3</span></span>
+<span class="line"><span> B3 --&gt; B5</span></span>
+<span class="line"><span> B5 --&gt; D1</span></span>
+<span class="line"><span> B5 --&gt; D2</span></span>
+<span class="line"><span> B5 --&gt; D3</span></span>
+<span class="line"><span> B5 --&gt; D4</span></span>
+<span class="line"><span> B4 -.-&gt;|&quot;动态配置&quot;| B2</span></span>
+<span class="line"><span> B4 -.-&gt;|&quot;动态配置&quot;| B5</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span> style A1 fill:#1a1d27,stroke:#f59e0b</span></span>
+<span class="line"><span> style A2 fill:#1a1d27,stroke:#38bdf8</span></span>
+<span class="line"><span> style B1 fill:#1a1d27,stroke:#f59e0b,stroke-width:2px</span></span>
+<span class="line"><span> style B2 fill:#1a1d27,stroke:#f59e0b,stroke-width:2px</span></span>
+<span class="line"><span> style B3 fill:#1a1d27,stroke:#f59e0b,stroke-width:2px</span></span>
+<span class="line"><span> style B4 fill:#1a1d27,stroke:#38bdf8,stroke-dasharray:5</span></span>
+<span class="line"><span> style B5 fill:#1a1d27,stroke:#f59e0b,stroke-width:2px</span></span>
+<span class="line"><span>```图 1：插件整体架构——加载入口、核心引擎、拦截器注册表、导出后端四层结构</span></span>
+<span class="line"><span>架构的核心思想是将拦截逻辑与业务代码完全解耦。插件通过运行时注入机制（monkey-patch / bytecode / eBPF）在 AI SDK 的调用路径上插入拦截点，业务代码完全感知不到插件的存在。</span></span>
+<span class="line"><span>## 4. 核心模块设计</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 4.1 插件生命周期管理器PluginManager 是插件的&quot;大脑&quot;，负责协调所有模块的初始化、运行时状态和销毁。</span></span></code></pre></div><p>stateDiagram-v2 [*] --&gt; UNLOADED UNLOADED --&gt; LOADING : load() LOADING --&gt; LOADED : 拦截器注册完成 LOADED --&gt; STARTING : start() STARTING --&gt; RUNNING : 导出器连接就绪 RUNNING --&gt; PAUSED : pause() PAUSED --&gt; RUNNING : resume() RUNNING --&gt; STOPPING : stop() PAUSED --&gt; STOPPING : stop() STOPPING --&gt; UNLOADED : 资源释放完成 RUNNING --&gt; RUNNING : 配置热更新 PAUSED --&gt; PAUSED : 配置热更新</p><p>state LOADING { [<em>] --&gt; 扫描拦截器 扫描拦截器 --&gt; 注册拦截器 注册拦截器 --&gt; 注入Hook点 注入Hook点 --&gt; [</em>] }</p><p>state STARTING { [<em>] --&gt; 连接导出器 连接导出器 --&gt; 启动缓冲区 启动缓冲区 --&gt; [</em>] }</p><div class="language-图 vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">图</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>| **生命周期阶段** | **触发方式** | **核心操作** |</span></span>
+<span class="line highlighted"><span>| LOADING | 进程启动自动 / 手动调用 | 扫描 classpath/module 中的拦截器实现，通过 SPI 注册到 InterceptorRegistry，在目标库的调用路径上注入 Hook 点 |</span></span>
+<span class="line"><span>| LOADED | 拦截器注册完成 | 所有拦截器就位但尚未开始采集数据，Span 缓冲区未分配 |</span></span>
+<span class="line"><span>| STARTING | 自动 / 手动调用 | 初始化 Span 构建器和导出器链，建立与 OTLP Collector 的 gRPC 连接，启动异步导出协程 |</span></span>
+<span class="line"><span>| RUNNING | 导出器就绪 | 正常采集和导出状态。支持热更新配置：采样率、导出目标、内容捕获开关均可动态调整 |</span></span>
+<span class="line"><span>| PAUSED | 运行时暂停 | 拦截器继续执行但 Span 不入队，已在队列中的数据继续导出。用于故障排查或压力测试场景 |</span></span>
+<span class="line"><span>| STOPPING | 进程退出 / 手动停止 | 等待缓冲区排空（最多 5s），关闭 gRPC 连接，释放内存，卸载 Hook 点 |</span></span>
+<span class="line"><span>### 4.2 拦截引擎InterceptorEngine 是整个插件最核心的模块，负责在 AI SDK 的调用路径上注入可观测性 Hook。不同语言的拦截机制完全不同，但都遵循统一的拦截器接口。</span></span></code></pre></div><p>flowchart LR subgraph &quot;拦截点&quot; P1[&quot;openai.chat.completions.create()&quot;] P2[&quot;anthropic.messages.create()&quot;] P3[&quot;langchain.Chain.invoke()&quot;] P4[&quot;llama_index.QueryEngine.query()&quot;] P5[&quot;mcp.Client.call_tool()&quot;] end</p><p>subgraph &quot;拦截器链&quot; I1[&quot;PreHook 记录开始时间 注入 trace_id&quot;] I2[&quot;SpanBuilder 构建 Span 填充属性&quot;] I3[&quot;PostHook 记录结束时间 提取 token 用量&quot;] I4[&quot;ErrorHook 捕获异常 设置 error 状态&quot;] I5[&quot;EvalHook 可选：LLM-as-Judge 质量评分&quot;] end</p><p>P1 --&gt; I1 P2 --&gt; I1 P3 --&gt; I1 P4 --&gt; I1 P5 --&gt; I1 I1 --&gt; I2 --&gt; I3 I1 --&gt; I4 I3 --&gt; I5</p><p>style P1 fill:#1a1d27,stroke:#38bdf8 style P2 fill:#1a1d27,stroke:#38bdf8 style P3 fill:#1a1d27,stroke:#38bdf8 style P4 fill:#1a1d27,stroke:#38bdf8 style P5 fill:#1a1d27,stroke:#38bdf8 style I1 fill:#1a1d27,stroke:#f59e0b style I2 fill:#1a1d27,stroke:#f59e0b style I3 fill:#1a1d27,stroke:#f59e0b style I4 fill:#1a1d27,stroke:#ef4444 style I5 fill:#1a1d27,stroke:#38bdf8,stroke-dasharray:5</p><div class="language-图 vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">图</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>每个拦截器实现一个标准接口，包含五个钩子：</span></span>
+<span class="line"><span>| **钩子** | **触发时机** | **职责** |</span></span>
+<span class="line highlighted"><span>| pre_hook(ctx, call_args) | 方法调用前 | 创建 Span，记录开始时间，注入/提取 trace context |</span></span>
+<span class="line"><span>| post_hook(ctx, result) | 方法返回后 | 记录结束时间，提取 token 用量、model 信息，设置 Span 状态 |</span></span>
+<span class="line"><span>| error_hook(ctx, exception) | 方法抛出异常时 | 记录异常类型和消息，设置 Span 为 error 状态 |</span></span>
+<span class="line"><span>| content_hook(ctx, prompt, completion) | 内容捕获启用时 | 将 prompt/completion 写入外部存储，Span 仅记录引用 URL |</span></span>
+<span class="line"><span>| eval_hook(ctx, span) | 评估启用时 | 对 Span 执行 LLM-as-Judge 评估，将评分作为 Span 属性 |</span></span>
+<span class="line"><span>### 4.3 Span 构建器SpanBuilder 负责将拦截器捕获的原始数据转换为符合 OTel GenAI 语义约定的 Span 对象。它不直接依赖 OTel SDK，而是生成中间表示，再由适配层转换为具体的 Span 实现。</span></span>
+<span class="line"><span>| **输入数据** | **转换逻辑** | **输出 Span 属性** |</span></span>
+<span class="line"><span>| call_args.model | 直接映射 | gen_ai.request.model |</span></span>
+<span class="line"><span>| result.model | 直接映射 | gen_ai.response.model |</span></span>
+<span class="line"><span>| result.usage.prompt_tokens | 直接映射 | gen_ai.usage.input_tokens |</span></span>
+<span class="line"><span>| result.usage.completion_tokens | 直接映射 | gen_ai.usage.output_tokens |</span></span>
+<span class="line"><span>| call_args中的 SDK 类型 | SDK → Provider 映射表 | gen_ai.provider.name |</span></span>
+<span class="line"><span>| call_args中的操作类型 | 操作类型推断 | gen_ai.operation.name+ Span 名称 |</span></span>
+<span class="line"><span>| context.trace_id | W3C Trace Context 传播 | trace_id+parent_span_id |</span></span>
+<span class="line"><span>中间表示设计。SpanBuilder 产出的是语言无关的 Span IR（Intermediate Representation），而非直接写入 OTel API。这种解耦使得同一套拦截逻辑可以输出到 OTel、LangFuse、Datadog 等多种后端，也便于单元测试。</span></span>
+<span class="line"><span>### 4.4 导出器链ExporterChain 采用责任链模式，支持将 Span 数据同时输出到多个后端。每个导出器独立运行，一个导出器的失败不影响其他导出器。</span></span>
+<span class="line"><span>| **导出器** | **协议** | **用途** | **缓冲策略** |</span></span>
+<span class="line"><span>| OTLP gRPC | OTLP | 标准 Trace/Metrics 导出 | Batch + 重试 |</span></span>
+<span class="line"><span>| OTLP HTTP | OTLP | 防火墙友好场景 | Batch + 重试 |</span></span>
+<span class="line"><span>| File Exporter | JSON Lines | 本地调试、离线分析 | 即时写入 |</span></span>
+<span class="line"><span>| Stdout Exporter | JSON | 开发环境、容器日志 | 即时写入 |</span></span>
+<span class="line"><span>| Content Exporter | S3/MinIO | prompt/completion 内容存储 | 异步上传 |</span></span>
+<span class="line"><span>### 4.5 配置管理器ConfigManager 设计了四级配置优先级（从高到低）</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>：</span></span>
+<span class="line"><span>- 运行时配置中心（如 Consul / etcd / Nacos）— 支持热更新- 环境变量—OTEL_*标准变量 + 插件自定义变量- 配置文件—observability-plugin.yaml放在应用根目录- 默认值— 插件内置的安全默认值## 5. 多语言接入方案插件的核心能力跨语言一致，但接入机制必须适配各语言的运行时特性。以下设计覆盖 Python、Java、Node.js 和 Go 四种主流语言。</span></span>
+<span class="line"><span>### 5.1 Python#### 方案 A：sitecustomize.py零代码在 Python 路径中放置sitecustomize.py，Python 解释器启动时自动加载。在其中 import 并初始化插件，利用 monkey-patch 替换openai.ChatCompletion.create等关键方法。</span></span>
+<span class="line"><span>#### 方案 B：import hook零代码注册sys.meta_path上的 import hook，在目标模块（openai、anthropic、langchain）被 import 时自动包裹其关键函数。比 monkey-patch 更精确，不依赖执行时序。</span></span>
+<span class="line"><span># sitecustomize.py — 放入 PYTHONPATH 或 site-packagesimportosimportsysfromai_obs_pluginimportPluginManager, ConfigManager# 1. 加载配置config= ConfigManager.from_env()# 2. 仅在启用时加载ifconfig.enabled:plugin= PluginManager(config)plugin.load()# 扫描并注册拦截器，注入 import hookplugin.start()# 连接导出器，开始采集# 3. 注册进程退出时的优雅关闭importatexitatexit.register(lambda:plugin.stop())拔插操作：设置AI_OBS_ENABLED=false环境变量即可完全禁用插件，无需删除文件或修改代码。移除sitecustomize.py文件则彻底卸载。</span></span>
+<span class="line"><span>### 5.2 Java#### 方案 A：Java Agent零代码启动时加-javaagent:ai-obs-plugin.jar。利用 ByteBuddy / ASM 在类加载时修改目标类的字节码，在OpenAiService.createChatCompletion等方法前后插入拦截逻辑。</span></span>
+<span class="line"><span>#### 方案 B：Spring Boot Starter一行依赖添加 Maven/Gradle 依赖，利用 Spring AutoConfiguration 自动装配拦截器 Bean。适合已有 Spring 生态的项目。</span></span>
+<span class="line"><span>// 启动命令java -javaagent:ai-obs-plugin-1.0.0.jar </span></span>
+<span class="line"><span>-Dotel.service.name=my-ai-app </span></span>
+<span class="line"><span>-Dotel.exporter.otlp.endpoint=http://localhost:4317</span></span>
+<span class="line"><span>-jar my-ai-app.jar// 或在 META-INF/services 中注册 SPI 扩展// io.opentelemetry.sdk.autoconfigure.spi.AutoConfigurationCustomizerProviderpublic classAiObsCustomizerimplementsAutoConfigurationCustomizerProvider{public voidcustomize(AutoConfigurationCustomizer customizer) {</span></span>
+<span class="line"><span>customizer.addTracerProviderCustomizer((tp, config) -&gt; {// 注册 AI 拦截器AiInterceptorRegistry.registerAll(tp);returntp;</span></span>
+<span class="line"><span>});</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span>拔插操作：去掉启动参数中的-javaagent即可完全移除，或通过环境变量OTEL_JAVAAGENT_ENABLED=false禁用。</span></span>
+<span class="line"><span>### 5.3 Node.js#### 方案 A：--require 预加载零代码启动时加node --require ai-obs-plugin/register app.js。利用 Node.js 的 Module 系统在目标模块加载时包裹其导出函数。</span></span>
+<span class="line"><span>#### 方案 B：Middleware 模式少量代码在 Express/Koa/Fastify 等框架中作为中间件引入。适合已有 HTTP 框架的 AI 服务。</span></span>
+<span class="line"><span>// 零代码启动node --require ai-obs-plugin/register app.js// 或一行代码接入// app.js 第一行require(&#39;ai-obs-plugin&#39;).init({serviceName:&#39;my-ai-app&#39;});// 插件内部实现：Module 劫持constModule =require(&#39;module&#39;);constoriginalLoad = Module._load;</span></span>
+<span class="line"><span>Module._load=function(request, parent, isMain) {constexports =originalLoad(request, parent, isMain);if(request ===&#39;openai&#39;) {wrapOpenAI(exports);// 包裹 chat.completions.create 等方法}returnexports;</span></span>
+<span class="line"><span>};</span></span>
+<span class="line"><span>### 5.4 Go#### 方案 A：eBPF 自动插桩零代码利用 OTel Go eBPF Auto-Instrumentation，在内核层面拦截网络调用和系统调用，不修改任何 Go 二进制文件。当前支持库有限。</span></span>
+<span class="line"><span>#### 方案 B：blank import一行导入在main.go中添加import _ &quot;ai-obs-plugin&quot;，利用init()函数自动初始化。适用于编译型语言的最小侵入模式。</span></span>
+<span class="line"><span>// 一行导入接入（Go）packagemainimport(&quot;github.com/openai/openai-go&quot;_&quot;github.com/yourorg/ai-obs-plugin&quot;// 仅此一行)funcmain() {// 业务代码完全不变client := openai.NewClient()// ...}</span></span>
+<span class="line"><span>| **语言** | **零代码方案** | **一行代码方案** | **成熟度** |</span></span>
+<span class="line"><span>| Python | sitecustomize.py+ import hook | Traceloop.init() | 成熟 |</span></span>
+<span class="line"><span>| Java | -javaagent+ 字节码增强 | Spring Boot Starter | 成熟 |</span></span>
+<span class="line"><span>| Node.js | --require+ Module 劫持 | require(&#39;ai-obs-plugin&#39;).init() | 发展中 |</span></span>
+<span class="line"><span>| Go | eBPF 自动插桩 | import _ &quot;...&quot; | 早期 |</span></span>
+<span class="line"><span>## 6. 应用层集成方式</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>根据应用架构的不同，插件提供四种集成模式，从最轻量的零代码到最灵活的手动控制。</span></span>
+<span class="line"><span>### 6.1 模式对比| **模式** | **代码侵入** | **适用场景** | **拦截范围** |</span></span>
+<span class="line"><span>| 零代码模式 | 无 | 已有 AI 应用快速接入、CI/CD 流水线自动注入 | 所有 LLM SDK 调用 |</span></span>
+<span class="line"><span>| 一行代码模式 | 1 行 | 需要指定 service name / 自定义导出目标 | 所有 LLM SDK 调用 |</span></span>
+<span class="line"><span>| 中间件模式 | 3-5 行 | Web 框架（FastAPI / Express / Spring） | HTTP 请求 + LLM 调用 |</span></span>
+<span class="line"><span>| 装饰器/注解模式 | 按需 | 自定义 Agent 编排、工作流 | 指定函数/方法 |</span></span>
+<span class="line"><span>### 6.2 零代码模式推荐的默认接入方式。通过启动参数注入，不需要修改任何代码：</span></span>
+<span class="line"><span># PythonAI_OBS_ENABLED=true pip install ai-obs-plugin# 将 sitecustomize.py 放入 PYTHONPATHpython app.py# Javajava -javaagent:ai-obs-plugin.jar -jar app.jar# Node.jsnode --require ai-obs-plugin/register app.js</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 6.3 一行代码模式当需要自定义 service name、导出端点或采样率时，在应用入口添加一行初始化：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># Pythonimportai_obs_plugin; ai_obs_plugin.init(service_name=&quot;my-gateway&quot;, sample_rate=0.1)// Node.jsrequire(&#39;ai-obs-plugin&#39;).init({serviceName:&#39;my-gateway&#39;,sampleRate:0.1});</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 6.4 装饰器/注解模式对于自定义 Agent 编排逻辑，使用装饰器手动创建 Span：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># Python 装饰器fromai_obs_pluginimportobserve@observe(name=&quot;invoke_agent my-custom-agent&quot;, kind=&quot;INTERNAL&quot;)async defmy_custom_agent(query: str) -&gt; str:async withobserve(name=&quot;execute_tool web_search&quot;):results =awaitsearch(query)</span></span>
+<span class="line"><span>response =awaitllm.generate(query, results)returnresponse</span></span>
+<span class="line"><span>## 7. 插件接口规范</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>为了让第三方开发者可以扩展新的拦截器，插件定义了一套标准的 SPI（Service Provider Interface）。</span></span>
+<span class="line"><span>### 7.1 Interceptor 接口# Python SPI 接口定义fromabcimportABC, abstractmethodfromtypingimportAny, Optionalfromdataclassesimportdataclass@dataclassclassInterceptorContext:trace_id: str</span></span>
+<span class="line"><span>span_id: str</span></span>
+<span class="line"><span>parent_span_id: Optional[str]</span></span>
+<span class="line"><span>service_name: str</span></span>
+<span class="line"><span>config: dictclassAIInterceptor(ABC):&quot;&quot;&quot;AI 调用拦截器基类——所有语言共享此接口语义&quot;&quot;&quot;@property@abstractmethoddeftarget_module(self) -&gt; str:&quot;&quot;&quot;目标模块/包名，如 &#39;openai&#39;、&#39;anthropic&#39;&quot;&quot;&quot;...@property@abstractmethoddeftarget_methods(self) -&gt; list[str]:&quot;&quot;&quot;需要拦截的方法列表，如 [&#39;chat.completions.create&#39;]&quot;&quot;&quot;...@abstractmethoddefpre_hook(self, ctx: InterceptorContext, args: dict) -&gt; dict:&quot;&quot;&quot;方法调用前：返回 Span 元数据&quot;&quot;&quot;...@abstractmethoddefpost_hook(self, ctx: InterceptorContext, result: Any, span_meta: dict) -&gt; None:&quot;&quot;&quot;方法调用后：填充 Span 属性&quot;&quot;&quot;...deferror_hook(self, ctx: InterceptorContext, error: Exception) -&gt; None:&quot;&quot;&quot;异常处理：默认记录 error 状态&quot;&quot;&quot;passdefcontent_hook(self, ctx, prompt, completion) -&gt; Optional[str]:&quot;&quot;&quot;内容捕获：返回内容引用 URL&quot;&quot;&quot;returnNone</span></span>
+<span class="line"><span>### 7.2 拦截器注册与发现| **语言** | **发现机制** | **注册方式** |</span></span>
+<span class="line"><span>| Python | importlib.metadata.entry_points(group=&#39;ai_obs.interceptors&#39;) | pyproject.toml中声明 entry point |</span></span>
+<span class="line"><span>| Java | ServiceLoader.load(AIInterceptor.class) | META-INF/services/文件 |</span></span>
+<span class="line"><span>| Node.js | require(&#39;ai-obs-plugin/interceptors/*&#39;) | package.json中声明导出 |</span></span>
+<span class="line"><span>| Go | init()中调用registry.Register() | import _触发init() |</span></span>
+<span class="line"><span>扩展性设计。第三方开发者只需实现AIInterceptor接口，在包描述文件中声明 entry point，插件框架即可自动发现并加载。整个过程无需修改插件核心代码。</span></span>
+<span class="line"><span>## 8. 配置与动态开关</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 8.1 完整配置项| **配置项** | **类型** | **默认值** | **说明** |</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| ai_obs.enabled | bool | true | 总开关 |</span></span>
+<span class="line"><span>| ai_obs.service_name | string | auto | 服务名称，自动从 OTEL_SERVICE_NAME 读取 |</span></span>
+<span class="line"><span>| ai_obs.sample_rate | float | 1.0 | 采样率 0.0-1.0 |</span></span>
+<span class="line"><span>| ai_obs.capture_content | bool | false | 是否捕获 prompt/completion 内容 |</span></span>
+<span class="line"><span>| ai_obs.content_storage | string | s3://... | 内容存储路径 |</span></span>
+<span class="line"><span>| ai_obs.enable_eval | bool | false | 是否启用 LLM-as-Judge 评估 |</span></span>
+<span class="line"><span>| ai_obs.eval_sample_rate | float | 0.05 | 评估采样率（仅对已采样的 Span 生效） |</span></span>
+<span class="line"><span>| ai_obs.interceptors | string[] | [&quot;openai&quot;,&quot;anthropic&quot;,&quot;langchain&quot;] | 启用的拦截器列表 |</span></span>
+<span class="line"><span>| ai_obs.exporter.otlp.endpoint | string | http://localhost:4317 | OTLP gRPC 端点 |</span></span>
+<span class="line"><span>| ai_obs.exporter.otlp.protocol | string | grpc | grpc 或 http |</span></span>
+<span class="line"><span>| ai_obs.buffer.max_spans | int | 2048 | Span 缓冲区大小 |</span></span>
+<span class="line"><span>| ai_obs.buffer.flush_interval_ms | int | 5000 | 缓冲区刷新间隔（毫秒） |</span></span>
+<span class="line"><span>| ai_obs.buffer.max_export_timeout_ms | int | 30000 | 单次导出超时（毫秒） |</span></span>
+<span class="line"><span>### 8.2 动态开关机制所有配置项均支持运行时热更新，无需重启应用。实现方式：</span></span></code></pre></div><p>sequenceDiagram participant App as 应用进程 participant CM as ConfigManager participant CC as 配置中心 (Consul/etcd) participant IE as InterceptorEngine participant EC as ExporterChain</p><p>App-&gt;&gt;CM: 启动时加载配置 CM-&gt;&gt;CC: Watch 配置变更 Note over CM,CC: 长连接监听</p><p>CC--&gt;&gt;CM: ai_obs.sample_rate: 0.1 CM-&gt;&gt;IE: 更新采样率 IE-&gt;&gt;IE: 热切换 Sampler 实例</p><p>CC--&gt;&gt;CM: ai_obs.capture_content: true CM-&gt;&gt;IE: 启用内容捕获钩子 IE-&gt;&gt;IE: 注册 content_hook</p><p>CC--&gt;&gt;CM: ai_obs.enabled: false CM-&gt;&gt;IE: 暂停拦截 CM-&gt;&gt;EC: 排空缓冲区后关闭 IE-&gt;&gt;IE: 卸载所有 Hook 点</p><div class="language-图 vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">图</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>## 9. 性能与安全</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 9.1 性能设计&lt; 1%</span></span>
+<span class="line highlighted"><span></span></span>
+<span class="line"><span>CPU 额外开销</span></span>
+<span class="line"><span>&lt; 5MB</span></span>
+<span class="line"><span>内存增量</span></span>
+<span class="line"><span>&lt; 50μs</span></span>
+<span class="line"><span>单次拦截延迟</span></span>
+<span class="line"><span>实现性能目标的四个关键策略：</span></span>
+<span class="line"><span>- 无锁环形缓冲区— Span 写入和导出使用 SPSC（Single Producer Single Consumer）无锁队列，避免锁竞争- 批量导出— Span 在缓冲区中聚合，每 5 秒或达到 2048 条时批量发送，减少网络往返- 零拷贝数据传递— 拦截器捕获的原始数据直接写入预分配的 Span 对象，避免中间序列化- 采样降载— 高负载时自动降低采样率：当缓冲区使用率超过 75% 时，采样率自动减半；超过 90% 时降至 10%</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 9.2 安全设计| **安全维度** | **措施** |</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| 敏感数据过滤 | 内置 PII 检测规则，自动脱敏 API Key、手机号、身份证号、邮箱。支持自定义正则规则 |</span></span>
+<span class="line"><span>| 内容捕获授权 | 内容捕获默认关闭，需显式配置 + 审批流程才能开启。捕获的内容使用独立 IAM 控制访问 |</span></span>
+<span class="line"><span>| 导出传输加密 | OTLP gRPC 强制使用 TLS 1.3，支持 mTLS 双向认证 |</span></span>
+<span class="line"><span>| 配置安全 | 敏感配置项（如 API Key、存储凭证）从环境变量或 Secret Manager 读取，不写入配置文件 |</span></span>
+<span class="line"><span>## 10. 实现路线图</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 10.1 分阶段交付- 阶段一：Python 插件 MVP8 周</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>实现 PluginManager、InterceptorEngine、SpanBuilder、ExporterChain 核心模块。支持 OpenAI + Anthropic 自动拦截，OTLP gRPC 导出。零代码模式（sitecustomize.py）和一行代码模式。- 阶段二：生态扩展6 周</span></span>
+<span class="line"><span>新增 LangChain、LlamaIndex、MCP 拦截器。支持内容捕获（S3 存储）。实现配置热更新和 LLM-as-Judge 评估引擎。自定义拦截器 SPI 和 SDK。- 阶段三：多语言支持10 周</span></span>
+<span class="line"><span>Java Agent（字节码增强 + Spring Boot Starter）。Node.js（--require + Module 劫持）。Go（blank import + eBPF 初步支持）。跨语言 API 一致性验证。- 阶段四：生产级增强6 周</span></span>
+<span class="line"><span>自适应采样、PII 自动脱敏、多租户隔离、大规模压测（10K QPS 验证）。性能基准测试和优化。与主流可观测性平台的集成认证。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>### 10.2 技术选型| **模块** | **Python** | **Java** | **Node.js** | **Go** |</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>| 拦截机制 | import hook + monkey-patch | ByteBuddy | Module._load 劫持 | eBPF / blank import |</span></span>
+<span class="line"><span>| OTel SDK | opentelemetry-api | opentelemetry-api | @opentelemetry/api | go.opentelemetry.io/otel |</span></span>
+<span class="line"><span>| 导出协议 | opentelemetry-exporter-otlp | opentelemetry-exporter-otlp | @opentelemetry/exporter-otlp | otel.exporters.otlp |</span></span>
+<span class="line"><span>| 配置管理 | environs + watchfiles | MicroProfile Config | dotenv + chokidar | viper + fsnotify |</span></span>
+<span class="line"><span>| 缓冲区 | collections.deque | Disruptor / ArrayBlockingQueue | ring-buffer-ts | channel (buffered) |</span></span>
+<span class="line"><span>核心原则：不重新发明轮子。所有 Span 和 Metrics 的构建、导出、采样均复用 OpenTelemetry 官方 SDK。插件只做两件事——在正确的时机创建正确的 Span，以及把 Span 数据以正确的格式送到正确的地方。</span></span>
+<span class="line"><span>## Sources- OpenTelemetry, &quot;Zero-code Instrumentation&quot; — 官方零代码插桩文档，涵盖 Java Agent、Python auto-instrumentation、Node.js --require 和 Go eBPF 等多种零代码方案。https://opentelemetry.io/docs/zero-code/- Traceloop, &quot;OpenLLMetry — OpenTelemetry-native LLM Observability&quot; — 基于 OTel 的 LLM 可观测性库，一行代码接入，支持 OpenAI、Anthropic、LangChain 等主流框架。https://www.traceloop.com/openllmetry- FutureAGI, &quot;Best LLM Instrumentation Libraries in 2026: 5 Compared&quot; — 对比了 OpenLLMetry、OpenInference、OpenLIT、traceAI、AgentTrace 五种 LLM 插桩库的插拔方式、覆盖框架和性能特征。https://futureagi.com/blog/best-llm-instrumentation-libraries-2026/- OpenTelemetry, &quot;Java Agent Extensions&quot; — Java Agent SPI 扩展机制，通过 AutoConfigurationCustomizerProvider 实现自定义拦截器注册。https://opentelemetry.io/docs/zero-code/java/agent/extensions/</span></span></code></pre></div></div></div></main><footer class="VPDocFooter" data-v-e6f2a212 data-v-1bcd8184><!--[--><!--]--><div class="edit-info" data-v-1bcd8184><!----><div class="last-updated" data-v-1bcd8184><p class="VPLastUpdated" data-v-1bcd8184 data-v-1bb0c8a8>Last updated: <time datetime="2026-07-22T23:23:16.000Z" data-v-1bb0c8a8></time></p></div></div><nav class="prev-next" aria-labelledby="doc-footer-aria-label" data-v-1bcd8184><span class="visually-hidden" id="doc-footer-aria-label" data-v-1bcd8184>Pager</span><div class="pager" data-v-1bcd8184><a class="VPLink link pager-link prev" href="/guide/ai-call-chain-observability.html" data-v-1bcd8184><!--[--><span class="desc" data-v-1bcd8184>Previous page</span><span class="title" data-v-1bcd8184>AI 调用链路可观测性设计文档</span><!--]--></a></div><div class="pager" data-v-1bcd8184><a class="VPLink link pager-link next" href="/guide/ai-gateway-observability-plugin.html" data-v-1bcd8184><!--[--><span class="desc" data-v-1bcd8184>Next page</span><span class="title" data-v-1bcd8184>AI 网关层可观测性接入技术方案</span><!--]--></a></div></nav></footer><!--[--><!--]--></div></div></div><!--[--><!--]--></div></div><footer class="VPFooter has-sidebar" data-v-d8b57b2d data-v-566314d4><div class="container" data-v-566314d4><p class="message" data-v-566314d4>基于 VitePress 构建</p><p class="copyright" data-v-566314d4>Copyright © 2026 veriyoung</p></div></footer><!--[--><!--]--></div></div>
+    <script>window.__VP_HASH_MAP__=JSON.parse("{\"guide_ai-call-chain-observability.md\":\"BierdB0q\",\"guide_ai-gateway-observability-plugin.md\":\"xI9BgxiW\",\"guide_ai-observability-security-plugin.md\":\"C4_dvyWW\",\"guide_ai-pluggable-observability-plugin.md\":\"L0yWfmEC\",\"guide_sentinelone-gap-analysis.md\":\"C3tqDNk-\",\"index.md\":\"CEe1MF3u\",\"redteam_ai-redteam.md\":\"uDOmRaRS\",\"redteam_redteam-pn-jailbreak.md\":\"D4Toh8ve\",\"redteam_redteam-report.md\":\"BuoU5dBM\",\"research_ai-agent-quantification.md\":\"BN4f51l2\",\"research_llm-observability-oss-2026.md\":\"FLqBho9Y\"}");window.__VP_SITE_DATA__=JSON.parse("{\"lang\":\"zh-CN\",\"dir\":\"ltr\",\"title\":\"AI Agent 可观测与安全\",\"description\":\"AI Agent 可观测性、安全防护、测试量化 — 技术文档与开源工具汇总\",\"base\":\"/\",\"head\":[],\"router\":{\"prefetchLinks\":true},\"appearance\":true,\"themeConfig\":{\"nav\":[{\"text\":\"首页\",\"link\":\"/\"},{\"text\":\"设计文档\",\"link\":\"/guide/ai-call-chain-observability\"},{\"text\":\"研究报告\",\"link\":\"/research/llm-observability-oss-2026\"}],\"sidebar\":{\"/guide/\":[{\"text\":\"AI Agent 可观测性设计\",\"items\":[{\"text\":\"AI 调用链路可观测性设计文档\",\"link\":\"/guide/ai-call-chain-observability\"},{\"text\":\"AI 可拔插可观测性插件设计方案\",\"link\":\"/guide/ai-pluggable-observability-plugin\"},{\"text\":\"AI 网关层可观测性接入技术方案\",\"link\":\"/guide/ai-gateway-observability-plugin\"},{\"text\":\"AI 可观测性与安全一体化插件设计方案\",\"link\":\"/guide/ai-observability-security-plugin\"}]},{\"text\":\"补充分析\",\"items\":[{\"text\":\"SentinelOne 工具补充分析\",\"link\":\"/guide/sentinelone-gap-analysis\"}]}],\"/redteam/\":[{\"text\":\"AI 安全测试\",\"items\":[{\"text\":\"AI Red Team 工具介绍\",\"link\":\"/redteam/ai-redteam\"},{\"text\":\"RedTeam 红队测试报告\",\"link\":\"/redteam/redteam-report\"},{\"text\":\"RedTeam 越狱测试报告\",\"link\":\"/redteam/redteam-pn-jailbreak\"}]}],\"/research/\":[{\"text\":\"行业研究\",\"items\":[{\"text\":\"2026年 LLM 可观测性开源工具汇总\",\"link\":\"/research/llm-observability-oss-2026\"},{\"text\":\"AI Agent 测试可量化方案分析\",\"link\":\"/research/ai-agent-quantification\"}]}]},\"socialLinks\":[{\"icon\":\"github\",\"link\":\"https://github.com/veriyoung\"}],\"search\":{\"provider\":\"local\"},\"footer\":{\"message\":\"基于 VitePress 构建\",\"copyright\":\"Copyright © 2026 veriyoung\"}},\"locales\":{},\"scrollOffset\":134,\"cleanUrls\":false}");</script>
+    
+  </body>
+</html>
