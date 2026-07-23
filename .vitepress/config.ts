@@ -13,7 +13,8 @@ export default defineConfig({
     ['meta', { property: 'og:description', content: 'AI Agent 可观测性、安全防护、测试量化 — 技术文档与开源工具汇总' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:url', content: 'https://veriyoung.github.io' }],
-        ['script', { src: '/clarity-init.js' }],
+        ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ['script', { src: '/clarity-init.js' }],
   ],
   themeConfig: {
     nav: [
